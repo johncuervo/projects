@@ -1,0 +1,22 @@
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV["POSTGRES_USER"] %>
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  host: <%= ENV["POSTGRES_HOST"] %>
+
+development:
+  <<: *default
+  database: recorrido_support_company_development
+
+test:
+  <<: *default
+  database: recorrido_support_company_test
+
+production:
+  <<: *default
+  database: recorrido_support_company_production
+  username: recorrido_support_company
+  password: <%= ENV["RECORRIDO_SUPPORT_COMPANY_DATABASE_PASSWORD"] %>

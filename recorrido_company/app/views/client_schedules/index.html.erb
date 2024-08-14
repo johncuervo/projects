@@ -1,0 +1,33 @@
+<div class="container mx-auto p-4 max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8" data-controller="client-schedule">
+  <div class="mt-6">
+    <div class="mb-4 flex justify-center items-center">
+      <label for="client-select" class="block mr-2 text-sm font-medium text-gray-900">Select Client</label>
+      <select id="client-select" data-action="change->client-schedule#loadSchedules" data-client-schedule-target="clientSelect" class="mt-1 block w-40 sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+        <option value="">Select a client</option>
+        <% @clients.each do |client| %>
+          <option value="<%= client.id %>"><%= client.name %></option>
+        <% end %>
+      </select>
+      
+      <label for="week-select" class="block ml-2 text-sm font-medium text-gray-900">Select Week</label>
+        <select id="week-select" data-action="change->client-schedule#loadSchedules" data-client-schedule-target="weekSelect" class="mt-1 block w-24 sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <% 0.upto(4) do |week_offset| %>
+                <% week_number = Date.today.cweek + week_offset %>
+                <% year = Date.today.year %>
+                <% start_date, end_date = Date.commercial(year, week_number, 1), Date.commercial(year, week_number, 7) %>
+                <option value="<%= week_number %>" data-start-date="<%= start_date %>" data-end-date="<%= end_date %>">
+                    Week <%= week_number %>: <%= start_date.strftime('%b %d') %> - <%= end_date.strftime('%b %d') %>
+                </option>
+            <% end %>
+        </select>
+
+        <input type="hidden" id="start-date" data-client-schedule-target="startDate" value="<%= Date.commercial(Date.today.year, Date.today.cweek, 1) %>">
+        <input type="hidden" id="end-date" data-client-schedule-target="endDate" value="<%= Date.commercial(Date.today.year, Date.today.cweek, 7) %>">
+        <button type="button" class="ml-2 px-4 py-2 bg-green-500 text-gray-900 rounded-md shadow-md hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50" data-action="click->client-schedule#editAvailability">Edit Availability</button>
+    </div>
+  </div>
+
+  <div id="schedule-container" data-client-schedule-target="scheduleContainer">
+    <%= render partial: 'client_schedules/schedules', locals: { client_schedules: @client_schedules, schedule_assignments: @schedule_assignments } if @client_schedules.present? %>
+  </div>
+</div>  

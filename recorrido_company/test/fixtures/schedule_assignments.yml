@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  client: one
+  supporter_employee: one
+  client_schedule: one
+  time: 2024-07-11 19:50:38
+  confirmed_time: false
+
+two:
+  client: two
+  supporter_employee: two
+  client_schedule: two
+  time: 2024-07-11 19:50:38
+  confirmed_time: false

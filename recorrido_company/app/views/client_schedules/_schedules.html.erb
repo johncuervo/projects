@@ -1,0 +1,90 @@
+<div class="mb-4 flex justify-center items-center">
+  <h2 class="text-xl font-bold">Schedules for <%= @client.name %> - <%= formatted_week_range(@start_date, @end_date) %></h2>
+</div>
+
+<% if @client_schedules.present? %>
+  <div class="mb-8">
+    <h3 class="text-lg font-bold mb-2">Summary of Assigned and Unassigned Hours</h3>
+    <table class="w-full table-auto divide-y divide-gray-200 bg-white shadow-md rounded-lg">
+      <thead class="bg-gray-100">
+        <tr>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supporter</th>
+          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @supporter_hours.each do |supporter_hour| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= supporter_hour[:employee].name %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= supporter_hour[:assigned_hours] %></td>
+          </tr>
+        <% end %>
+        <tr class="bg-red-100">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Unassigned Hours</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= total_unassigned_hours %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <% @client_schedules.each do |schedule| %>
+    <div class="inline-block mb-8">
+      <table class="w-full table-auto divide-y divide-gray-200 bg-white shadow-md rounded-lg">
+        <thead class="bg-gray-100">
+          <tr>
+            <th scope="col" colspan="<%= @supporter_employees.size + 2 %>" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <%= adjusted_day_name(day_name_to_index(schedule.day_of_week)) %>
+            </th>
+          </tr>
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+            <% @supporter_employees.each do |employee| %>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium" style="background-color: <%= employee.assigned_color %>; opacity: 0.6;"><%= employee.name %></th>
+            <% end %>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% (schedule.start_hour.to_i..schedule.end_hour.to_i).step(1.hour) do |hour| %>
+            <% hour_time = Time.zone.at(hour) %>
+            <% confirmed_any = false %>
+            <% @supporter_employees.each do |employee| %>
+              <% assignment = schedule.schedule_assignments.find do |assign| 
+                  assign.time.hour == hour_time.hour && 
+                  assign.supporter_employee_id == employee.id &&
+                  assign.time.to_date >= @start_date &&
+                  assign.time.to_date <= @end_date
+                end %>
+              <% if assignment && assignment.confirmed_time %>
+                <% confirmed_any = true %>
+                <% break %>
+              <% end %>
+            <% end %>
+            <tr class="<%= confirmed_any ? '' : 'bg-red-100' %>">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= hour_time.strftime("%H:%M") %></td>
+              <% @supporter_employees.each do |employee| %>
+                <% assignment = schedule.schedule_assignments.find do |assign| 
+                    assign.time.hour == hour_time.hour && 
+                    assign.supporter_employee_id == employee.id &&
+                    assign.time.to_date >= @start_date &&
+                    assign.time.to_date <= @end_date
+                  end %>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" style="background-color: <%= assignment && assignment.confirmed_time ? '#D1FAE5' : (confirmed_any ? '' : '#FECACA') %>;">
+                  <%= check_box_tag "schedule[#{schedule.id}][#{hour_time.strftime("%H:%M")}][employee_ids][]", employee.id, assignment.present?, class: 'form-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded', disabled: true %>
+                </td>
+              <% end %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                <% if !confirmed_any %>
+                  <i class="fas fa-exclamation-triangle text-red-600"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+<% else %>
+  <div class="mt-4">
+    <p>No schedules available for the selected week.</p>
+  </div>
+<% end %>

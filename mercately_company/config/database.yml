@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV["POSTGRES_USER"] %>
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  host: <%= ENV["POSTGRES_HOST"] %>
+
+development:
+  <<: *default
+  database: mercately_e_commerce_development
+
+test:
+  <<: *default
+  database: mercately_e_commerce_test
+
+production:
+  <<: *default
+  database: mercately_e_commerce_production
+  username: mercately_e_commerce
+  password: <%= ENV["MERCATELY_E_COMMERCE_DATABASE_PASSWORD"] %>

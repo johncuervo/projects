@@ -1,0 +1,33 @@
+<div class="bg-sky-200" data-controller="item">
+  <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+    <h2 class="text-2xl font-bold tracking-tight text-gray-900">Order Details</h2>
+    <p class="text-sm font-medium text-gray-900"><strong>Order Number:</strong> <%= @order.order_number %></p>
+    <p class="text-sm font-medium text-gray-900"><strong>Total Price:</strong> <%= number_to_currency(@order.total_price) %></p>
+
+    <div id="items" class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+      <% @order.order_items.each do |order_item| %>
+        <div class="group relative">
+          <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+            <%= image_tag(order_item.item.img_url, class: "h-full w-full object-cover object-center lg:h-full lg:w-full", alt: "#{order_item.item.name} Image") %>
+          </div>
+          <div class="mt-4 flex justify-between">
+            <div>
+              <h3 class="text-sm text-gray-700">
+                <a href="#">
+                  <%= order_item.item.name %>
+                </a>
+              </h3>
+              <p class="mt-1 text-sm text-gray-500"><%= order_item.item.description %></p>
+              <p class="mt-1 text-sm text-gray-500">Price: <%= number_to_currency(order_item.item.price) %></p>
+              <p class="mt-1 text-sm text-gray-500">Quantity: <%= order_item.quantity %></p>
+            </div>
+            <p class="text-sm font-medium text-gray-900"><%= number_to_currency(order_item.item.price * order_item.quantity) %></p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    <div class="mt-4 flex justify-between">
+      <%= link_to "Home Page", v1_items_path, class: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" %>
+    </div>
+  </div>
+</div>
